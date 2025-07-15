@@ -3,14 +3,14 @@ import * as fs from "fs";
 import * as path from "path";
 
 interface FixEmbedLinksSettings {
-  backupDir: string;          // ścieżka względna lub absolutna
+  backupDir: string;
 }
 
 const DEFAULT_SETTINGS: FixEmbedLinksSettings = {
-  backupDir: "../12345-obsidian-backup",
+  backupDir: "../Backup-Fix-Embed-Links",
 };
 
-// regex dopasowujący linki zewnętrzne do embedowanych plików
+// Regex to match external links wrapping embedded files
 const EMBED_LINK_RE = /\[\s*!\[\[\s*([^\]]+?)\s*\]\]\s*\]\([^)]+?\)/gms;
 
 export default class FixEmbedLinksPlugin extends Plugin {
@@ -21,16 +21,16 @@ export default class FixEmbedLinksPlugin extends Plugin {
 
     this.addCommand({
       id: "fix-embed-links-run",
-      name: "Napraw linki embedów (cały vault)",
+      name: "Fix embed links (entire vault)",
       callback: () => this.runFix(),
     });
 
-    this.addRibbonIcon('wand', 'Napraw linki embedów (cały vault)', () => this.runFix());
+    this.addRibbonIcon('wand', 'Fix embed links (entire vault)', () => this.runFix());
 
     this.addSettingTab(new FixEmbedLinksSettingTab(this.app, this));
   }
 
-  /* ---------------- główna funkcja ---------------- */
+  /* ---------------- Main Function ---------------- */
   async runFix() {
     const vaultFiles = this.app.vault.getMarkdownFiles();
     const basePath = (this.app.vault.adapter as any).getBasePath?.() ?? "";
@@ -52,7 +52,7 @@ export default class FixEmbedLinksPlugin extends Plugin {
     }
 
     new Notice(
-      `✔ Przeskanowano ${checked} plików • Naprawiono ${repaired} • Podmian ${replacements}\nBackup: ${backupRoot}`
+      `✔ Scanned ${checked} files • Repaired ${repaired} • Replacements ${replacements}\nBackup folder: ${backupRoot}`
     );
   }
 
@@ -72,7 +72,7 @@ export default class FixEmbedLinksPlugin extends Plugin {
     await fs.promises.writeFile(dst, original, "utf8");
   }
 
-  /* ---------------- ustawienia ---------------- */
+  /* ---------------- Settings ---------------- */
   async loadSettings() {
     this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData());
   }
@@ -81,7 +81,7 @@ export default class FixEmbedLinksPlugin extends Plugin {
   }
 }
 
-/* -------- karta ustawień w UI Obsidiana -------- */
+/* -------- Settings Tab in Obsidian UI -------- */
 class FixEmbedLinksSettingTab extends PluginSettingTab {
   plugin: FixEmbedLinksPlugin;
   constructor(app: App, plugin: FixEmbedLinksPlugin) {
@@ -91,14 +91,14 @@ class FixEmbedLinksSettingTab extends PluginSettingTab {
   display(): void {
     const { containerEl } = this;
     containerEl.empty();
-    containerEl.createEl("h2", { text: "Fix Embed Links – ustawienia" });
+    containerEl.createEl("h2", { text: "Fix Embed Links – Settings" });
 
     new Setting(containerEl)
-      .setName("Folder kopii zapasowych")
-      .setDesc("Ścieżka względna lub absolutna, gdzie będą trafiały kopie oryginalnych plików.")
+      .setName("Backup folder")
+      .setDesc("Relative or absolute path where backups of original files will be saved.")
       .addText((text) =>
         text
-          .setPlaceholder("../12345-obsidian-backup")
+          .setPlaceholder(DEFAULT_SETTINGS.backupDir)
           .setValue(this.plugin.settings.backupDir)
           .onChange(async (value) => {
             this.plugin.settings.backupDir = value.trim() || DEFAULT_SETTINGS.backupDir;
