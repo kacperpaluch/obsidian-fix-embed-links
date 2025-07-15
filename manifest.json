@@ -1,0 +1,10 @@
+{
+  "id": "fix-embed-links",
+  "name": "Fix Embed Links",
+  "version": "1.0.0",
+  "minAppVersion": "1.0.0",
+  "description": "Naprawia embedowane obrazy w Twoich notatkach, usuwając zbędne nawiasy i linki oraz tworząc kopie zapasowe zmienianych plików.",
+  "author": "Kacper Paluch",
+  "authorUrl": "",
+  "isDesktopOnly": false
+}
